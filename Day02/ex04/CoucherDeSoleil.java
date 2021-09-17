@@ -31,6 +31,6 @@ class CoucherDeSoleil {
 
     public static void main(String[] args) {
         int[] indexes = {3, 5, 4, 4, 3, 1, 3, 2};
-        System.out.println(whoCanSeeSun(Direction.EST, indexes));
+        System.out.println(whoCanSeeSun(Direction.OUEST, indexes));
     }
 }

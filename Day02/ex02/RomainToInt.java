@@ -8,28 +8,28 @@ class RomainToInt {
     static int[] values = {1, 5, 10, 50, 100, 500, 1000};
 
     static String toUpper(String str) {
-        String new_str = "";
+        String newStr = "";
 
         for (int i = 0; i < str.length(); i++) {
             int a = (int)str.charAt(i);
             if(a >= 97 && a <= 122)
-                new_str += (char)(((a - ((int)'a'))) + (int)'A');
+                newStr += (char)(((a - ((int)'a'))) + (int)'A');
             else
-                new_str += str.charAt(i);
+                newStr += str.charAt(i);
         }
 
-        return new_str;
+        return newStr;
     }
 
     static String cleanRomainString(String romain) {
-        String n_romain = "";
+        String newRomain = "";
 
         for (int i = 0; i < romain.length(); i++) {
             if(!symbols.contains(romain.charAt(i))) continue;
-            n_romain += romain.charAt(i);
+            newRomain += romain.charAt(i);
         }
 
-        return n_romain;
+        return newRomain;
     }
 
     static int romainToInt(String romain) {
