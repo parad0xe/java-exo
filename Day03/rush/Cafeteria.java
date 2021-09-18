@@ -1,20 +1,65 @@
 import java.util.*;
 
-public class MitCafeteria {
+class Person {
+    private String name;
+    private ArrayList<Person> collaborators;
 
-    static void printArrayList(ArrayList array, String[] rooms) {
+    Person(String name) {
+        this.name = name;
+        this.collaborators = new ArrayList<>();
+    }
+
+    public boolean hasCollaborateWith(Person person) {
+        return this.collaborators.contains(person);
+    }
+
+    public void addCollaborator(Person person) {
+        this.collaborators.add(person);
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+class Room {
+    private String name;
+    private ArrayList<Person> users;
+
+    Room(String name) {
+        this.name = name;
+        this.users = new ArrayList<>();
+    }
+
+    public boolean wasUsedBy(Person person) {
+        return this.users.contains(person);
+    }
+
+    public void addUser(Person person) {
+        this.users.add(person);
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+
+
+public class Cafeteria {
+    public static void printPlanning(ArrayList<Map<Room, ArrayList<Person>>> plan) {
         System.out.print("ArrayList[");
-        for (int i = 0; i < array.size(); i++) {
-            System.out.print("\n  Day(" + (i + 1) + ")[");
-            Map<String, ArrayList<String>> places = (Map<String, ArrayList<String>>)array.get(i);
+        for (int i = 0; i < plan.size(); i++) {
+            System.out.print("\n  Day(" + (i) + ")[");
+            Map<Room, ArrayList<Person>> day = (Map<Room, ArrayList<Person>>)plan.get(i);
 
-            for (String place : rooms) {
-                System.out.print("\n    Place(" + place + ") [");
-                ArrayList<String> names = places.get(place);
+            for (Room room : day.keySet()) {
+                System.out.print("\n    Place(" + room.getName() + ") [");
+                ArrayList<Person> persons = day.get(room);
 
-                for (int j = 0; j < names.size(); j++) {
-                    System.out.print(names.get(j));
-                    if(j < names.size() - 1) System.out.print(", ");
+                for (int j = 0; j < persons.size(); j++) {
+                    System.out.print(persons.get(j).getName());
+                    if(j < persons.size() - 1) System.out.print(", ");
                 }
                 System.out.print("]");
             }
@@ -23,51 +68,66 @@ public class MitCafeteria {
         System.out.print("\n]\n");
     }
 
-    public static ArrayList<Object> planning(int[] shifts, String[] persons, String[] places){
-        if(persons.length%2!=0){
-            String[] employees = new String[persons.length+1];
-            for (int i=0;i< persons.length; i++) {
-                employees[i]=persons[i];
-            }
-            employees[persons.length]="/";
-            persons=employees;
-        }
-        ArrayList<Object> list = new ArrayList<>();
+    public static ArrayList<Map<Room, ArrayList<Person>>> getPlanning(int[] days, Room[] rooms, Person[] persons){
+        ArrayList<Map<Room, ArrayList<Person>>> plan = new ArrayList<>();
 
-        for (int s = 0; s < shifts.length; s++) {
+        for (int i = 0; i < days.length; i++) {
+            Map<Room, ArrayList<Person>> day = new HashMap<>();
 
-            Map<String, ArrayList<String>> map= new HashMap<String, ArrayList<String>>();
-            for (int pl = 0; pl < places.length; pl++) {
-                map.put(places[pl],new ArrayList<String>());
-            }
-            for (int pe = 0; pe < persons.length; pe++) {
-                int pl=0;
-                if(pe%2==0){
-                    pl = (pe/2+s)%places.length;
-                }
-                else{
-                    pl = (pe/2-s);
+            ArrayList<Person> peoplePlaced = new ArrayList<>();
 
-                    if(pl<0){
-                        pl=(places.length-(Math.abs(pl)%(places.length)))%places.length;
+            for (int j = 0; j < rooms.length; j++) {
+                Room room = rooms[j];
+                ArrayList<Person> binome = new ArrayList<>();
+
+                for (int k = 0; k < persons.length; k++) {
+                    Person person = persons[k];
+
+                    if(
+                            !room.wasUsedBy(person) &&
+                            (binome.size() < 1 || !binome.get(0).hasCollaborateWith(person)) &&
+                            !peoplePlaced.contains(person)
+                    ) {
+                        if(binome.size() == 1) {
+                            binome.get(0).addCollaborator(person);
+                            person.addCollaborator(binome.get(0));
+                        }
+
+                        binome.add(person);
+                        room.addUser(person);
+                        peoplePlaced.add(person);
+
+                        if(binome.size() == 2) break;
                     }
                 }
 
-                ArrayList<String> arrayPersons = map.get(places[pl]);
-                arrayPersons.add(persons[pe]);
-                map.put(places[pl], arrayPersons);
+                day.put(room, binome);
             }
-            list.add(map);
+
+            plan.add(day);
         }
 
-        printArrayList(list, places);
-        return list;
+        return plan;
     }
-    public static void main(String[] args) {
-        String[] employees = {"Marcus", "Lateefa", "Donald", "Rashad", "Quincy", "Mia"};
-        String[] cafeteria = {"Lobby", "Dining Room", "Kitchen"};
-        int[] shifts={0, 1, 2, 3, 4, 5, 6, 7};
 
-        planning(shifts, employees, cafeteria);
+    public static void main(String[] args) {
+        Person[] persons = {
+                new Person("Marcus"),
+                new Person("Lateefa"),
+                new Person("Donald"),
+                new Person("Rashad"),
+                new Person("Quincy"),
+                new Person("Mia")
+        };
+
+        Room[] rooms = {
+                new Room("Lobby"),
+                new Room("Dining Room"),
+                new Room("Kitchen")
+        };
+
+        int[] days = {0, 1, 2, 3, 4, 5, 6, 7};
+
+        printPlanning(getPlanning(days, rooms, persons));
     }
 }
